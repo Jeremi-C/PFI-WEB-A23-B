@@ -365,8 +365,59 @@ async function renderPhotos() {
     }
 }
 async function renderPhotosList() {
-    eraseContent();
-    $("#content").append("<h2> En contruction </h2>");
+    timeout();
+    let loggedUser = API.retrieveLoggedUser();
+    if (loggedUser) {
+        eraseContent();
+        UpdateHeader("Liste des photos", "photosList");
+        $("#newPhotoCmd").hide();
+        $("#abort").hide();
+        let photos = await API.GetPhotos();
+        if (API.error) {
+            renderError();
+        } else {
+            $("#content").empty();
+            $("#content").append(`<div class="photosLayout">`);
+            photos.data.forEach(photo => {
+                if (photo.Shared || photo.OwnerId == loggedUser.Id) {
+                    let date = convertToFrenchDate(photo.Date);
+                    let edit = photo.OwnerId == loggedUser.Id ? `<span class="modifyPhotoCmd cmdIconVisible fas fa-trash cmdIconSmall" title="modifier" photoId="${photo.Id}"></span>
+                    <span class="removePhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" title="supprimer" photoId="${photo.Id}"></span>`:``;
+                    let nblike = 0//photo.likes.length();
+                    let like = photo == photo? `fa-regular fa-thumb-up`:`fa fa-thumb-up`;
+                    let userRow = `
+                    <div class="photoLayout">
+                        <div class="photoTitleContainer">
+                            <span class="photoTitle">${photo.Title}</span>
+                            <span>${edit}<span>
+                        </div>
+                        <div class="photoImage detailPhotoCmd" style="background-image:url('${photo.Image}')" photoId="${photo.Id}">
+                        <div class="photoTitleContainer">
+                            <span>${date}</span>
+                            <span>${nblike}</span><span class="${like}"></span>
+                        </div> 
+                    </div>           
+                    `;
+                    $("#content").append(userRow);
+                }
+                $("#content").append(`</div>`);
+            });
+            $(".detailPhotoCmd").on("click", async function () {
+                let photoId = $(this).attr("photoId");
+                await API.PromoteUser(photoId);
+                renderManageUsers();
+            });
+            $(".modifyPhotoCmd").on("click", async function () {
+                let photoId = $(this).attr("photoId");
+                await API.BlockUser(photoId);
+                renderManageUsers();
+            });
+            $(".removePhotoCmd").on("click", function () {
+                let photoId = $(this).attr("photoId");
+                renderConfirmDeleteAccount(photoId);
+            });
+        }
+    } 
 }
 function renderVerify() {
     eraseContent();
@@ -759,6 +810,7 @@ function renderLoginForm() {
         login(credential);
     });
 }
+
 function getFormData($form) {
     const removeTag = new RegExp("(<[a-zA-Z0-9]+>)|(</[a-zA-Z0-9]+>)", "g");
     var jsonObject = {};
