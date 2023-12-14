@@ -280,6 +280,18 @@ async function deleteProfil() {
             renderError("Un problème est survenu.");
     }
 }
+
+async function deletePhoto(id) {
+    let photo = API.GetPhotosById(id);
+    if (photo) {
+        if (await API.DeletePhoto(loggedUser.Id)) {
+            
+            renderPhotos();
+        } else
+           console.log("what is this");
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -865,7 +877,7 @@ function renderAddPhotoForm() {
 }
  
 
-function renderEditPhotoForm( Pid) {
+function renderEditPhotoForm(Pid) {
     timeout();
 
     let loggedUser = API.retrieveLoggedUser();
@@ -942,6 +954,38 @@ function renderEditPhotoForm( Pid) {
             showWaitingGif();
             UpdatePhoto(Photo);
         });
+    }
+}
+function renderConfirmDeleteProfil(Pid) {
+    timeout();
+    let loggedUser = API.retrieveLoggedUser();
+    let photo =API.GetPhotosById(Pid);
+    if (photo.OwnerId==loggedUser.Id) {
+        eraseContent();
+        UpdateHeader("Retrait de Photo", "confirmDeletePhoto");
+        $("#newPhotoCmd").hide();
+        $("#content").append(`
+            <div class="content loginForm">
+                <br>
+                
+                <div class="form">
+                 <h3> Voulez-vous vraiment effacer votre photo? </h3>
+                 <br>
+                 <h4>${photo.Title}</h4>
+                 <br>
+                 <img src="${photo.Image}" alt="the picture" width="${photoContainerWidth}" height="${photoContainerHeight}">
+                    <button class="form-control btn-danger" id="deletePhotoCmd">Effacer ma photo</button>
+                    <br>
+                    <button class="form-control btn-secondary" id="cancelDeletePhotoCmd">Annuler</button>
+                </div>
+            </div>
+        `);
+        //deleteProfil
+       
+        $("#deletePhotoCmd").on("click", function () {
+            deletePhoto(photo.Id);
+        });
+        $('#cancelDeletePhotoCmd').on('click',  renderPhotos);
     }
 }
  
