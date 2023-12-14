@@ -244,6 +244,14 @@ async function CreatePhoto(photo) {
     }
 }
 
+async function UpdatePhoto(photo) {
+    if (await API.UpdatePhoto(photo)) {
+        renderPhotos();
+    } else {
+        renderError("Un problème est survenu.");
+    }
+}
+
 
 async function adminDeleteAccount(userId) {
     if (await API.unsubscribeAccount(userId)) {
@@ -252,6 +260,16 @@ async function adminDeleteAccount(userId) {
         renderError("Un problème est survenu.");
     }
 }
+
+async function adminDeleteAccount(userId) {
+    if (await API.unsubscribeAccount(userId)) {
+        renderManageUsers();
+    } else {
+        renderError("Un problème est survenu.");
+    }
+}
+
+
 async function deleteProfil() {
     let loggedUser = API.retrieveLoggedUser();
     if (loggedUser) {
@@ -262,6 +280,18 @@ async function deleteProfil() {
             renderError("Un problème est survenu.");
     }
 }
+
+async function deletePhoto(id) {
+    let photo = API.GetPhotosById(id);
+    if (photo) {
+        if (await API.DeletePhoto(loggedUser.Id)) {
+            
+            renderPhotos();
+        } else
+           console.log("what is this");
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -890,11 +920,124 @@ function renderAddPhotoForm() {
             else{
                 Photo.Shared=false;
             }
-            console.log(Photo);
+
             event.preventDefault();
             showWaitingGif();
             CreatePhoto(Photo);
         });
+    }
+}
+ 
+
+function renderEditPhotoForm(Pid) {
+    timeout();
+
+    let loggedUser = API.retrieveLoggedUser();
+    let photo =API.GetPhotosById(Pid);
+    if (photo.OwnerId==loggedUser.Id) {
+        eraseContent();
+        UpdateHeader("Modification de Photos", "photoEdit");
+        $("#newPhotoCmd").hide();
+        $("#content").append(`
+            <br/>
+            <form class="form" id="EditPhotoForm"'>
+            <input type="hidden" name="Date" id="Date" value="${Date.now()}"/>
+            <input type="hidden" name="OwnerId" id="OwnerId" value="${loggedUser.Id}"/>
+                <fieldset>
+                    <legend>Informations</legend>
+                    <input  type="text" 
+                            class="form-control Title" 
+                            name="Title" 
+                            id="Title"
+                            placeholder="Titre" 
+                            required 
+                            RequireMessage = 'Veuillez entrer votre titre'
+                            InvalidMessage = 'titre invalide'
+                            value="${photo.Title}" 
+                            >
+
+                    <textarea  class="form-control Description" 
+                                type="textarea" 
+                                name="Description" 
+                                id="Description" 
+                            placeholder="Description" 
+                            required
+                            RequireMessage = 'Veuillez entrez une description pour votre image'
+                            InvalidMessage="quelque chose cloche avec votre message" 
+                            value="${photo.Description}" 
+                            ></textarea>
+                            <div>
+                            <input type="checkbox" id="Shared" name="Shared" value="${photo.Shared}"/>
+                            <label for="Shared">Partagée</label>
+                            </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Image</legend>
+                   
+                    <div class='imageUploader' 
+                    newImage='true' 
+                    controlId='Image' 
+                    imageSrc='${photo.Image}' 
+                    waitingImage="images/Loading_icon.gif">
+        </div>
+                </fieldset>
+
+                <input type='submit' name='submit' id='savePhoto' value="Enregistrer" class="form-control btn-primary">
+              
+            </form>
+            <div class="cancel">
+                <button class="form-control btn-secondary" id="aborteditPhotosCmd">Annuler</button>
+            </div>
+
+        `);
+        initFormValidation(); // important do to after all html injection!
+        initImageUploaders();
+        $('#aborteditPhotosCmd').on('click', renderPhotos);
+        $('#EditPhotoForm').on("submit", function (event) {
+            let Photo = getFormData($('#EditPhotoForm'));
+            if(Photo.Shared=="on"|| Photo.Shared==true){
+                Photo.Shared=true;
+            }
+            else{
+                Photo.Shared=false;
+            }
+           
+            event.preventDefault();
+            showWaitingGif();
+            UpdatePhoto(Photo);
+        });
+    }
+}
+function renderConfirmDeleteProfil(Pid) {
+    timeout();
+    let loggedUser = API.retrieveLoggedUser();
+    let photo =API.GetPhotosById(Pid);
+    if (photo.OwnerId==loggedUser.Id) {
+        eraseContent();
+        UpdateHeader("Retrait de Photo", "confirmDeletePhoto");
+        $("#newPhotoCmd").hide();
+        $("#content").append(`
+            <div class="content loginForm">
+                <br>
+                
+                <div class="form">
+                 <h3> Voulez-vous vraiment effacer votre photo? </h3>
+                 <br>
+                 <h4>${photo.Title}</h4>
+                 <br>
+                 <img src="${photo.Image}" alt="the picture" width="${photoContainerWidth}" height="${photoContainerHeight}">
+                    <button class="form-control btn-danger" id="deletePhotoCmd">Effacer ma photo</button>
+                    <br>
+                    <button class="form-control btn-secondary" id="cancelDeletePhotoCmd">Annuler</button>
+                </div>
+            </div>
+        `);
+        //deleteProfil
+       
+        $("#deletePhotoCmd").on("click", function () {
+            deletePhoto(photo.Id);
+        });
+        $('#cancelDeletePhotoCmd').on('click',  renderPhotos);
     }
 }
  
