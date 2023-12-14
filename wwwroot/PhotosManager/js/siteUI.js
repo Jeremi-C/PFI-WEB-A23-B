@@ -396,6 +396,7 @@ async function renderPhotos() {
 }
 async function renderPhotosList() {
     timeout();
+    let i=0;
     let loggedUser = API.retrieveLoggedUser();
     if (loggedUser) {
         eraseContent();
@@ -407,19 +408,20 @@ async function renderPhotosList() {
             renderError();
         } else {
             $("#content").empty();
-            $("#content").append(`<div class="photosLayout">`);
+            $("#content").append(`<div class="photosLayout" id="it"> `);
             photos.data.forEach(photo => {
                 if (photo.Shared || photo.OwnerId == loggedUser.Id) {
                     let date = convertToFrenchDate(photo.Date);
-                    let edit = photo.OwnerId == loggedUser.Id ? `<span class="modifyPhotoCmd cmdIconVisible fas fa-trash cmdIconSmall" title="modifier" photoId="${photo.Id}"></span>
-                    <span class="removePhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" title="supprimer" photoId="${photo.Id}"></span>`:``;
+                    let edit = photo.OwnerId == loggedUser.Id ? 
+                    `<div><span class="modifyPhotoCmd cmdIconVisible fas fa-trash cmdIconSmall"  id="onglet" title="modifier" photoId="${photo.Id}"></span></div>
+                    <div><span class="removePhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" id="onglet" inline-block;" title="supprimer" photoId="${photo.Id}"></span> </div>`:``;
                     let nblike = 0//photo.likes.length();
                     let like = photo == photo? `fa-regular fa-thumb-up`:`fa fa-thumb-up`;
                     let userRow = `
-                    <div class="photoLayout">
+                    <div class="photoLayoutNoScrollSnap">
                         <div class="photoTitleContainer">
                             <span class="photoTitle">${photo.Title}</span>
-                            <span>${edit}<span>
+                            ${edit}
                         </div>
                         <div class="photoImage detailPhotoCmd" style="background-image:url('${photo.Image}')" photoId="${photo.Id}">
                         <div class="photoTitleContainer">
@@ -428,10 +430,11 @@ async function renderPhotosList() {
                         </div> 
                     </div>           
                     `;
-                    $("#content").append(userRow);
+                    $("#it").append(userRow);
                 }
-                $("#content").append(`</div>`);
-            });
+               
+            }); 
+            $("#content").append(`</div>`);
             $(".detailPhotoCmd").on("click", async function () {
                 let photoId = $(this).attr("photoId");
                 await API.PromoteUser(photoId);

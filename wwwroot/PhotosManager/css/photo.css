@@ -18,6 +18,7 @@
     flex:1;
     margin: 0px;
     padding-left: 10px;
+    width: 355px;
 }
 
 
@@ -47,7 +48,9 @@
     font-weight: bold;
     color:rgb(0, 87, 204);
 }
-
+.onglet{
+    display: inline-block;
+}
 .photoDetailsOwner {
     display:grid;
     grid-template-columns: 50px auto;
