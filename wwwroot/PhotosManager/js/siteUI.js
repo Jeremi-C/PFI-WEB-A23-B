@@ -779,15 +779,14 @@ function renderAddPhotoForm() {
         $("#content").append(`
             <br/>
             <form class="form" id="AddPhotoForm"'>
-            <input type="hidden" name="Date" id="Date" value="${API.ti}"/>
-            <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
-            <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
+            <input type="hidden" name="Date" id="Date" value="${Date.now()}"/>
+            <input type="hidden" name="OwnerId" id="OwnerId" value="${loggedUser.Id}"/>
                 <fieldset>
                     <legend>Informations</legend>
                     <input  type="text" 
-                            class="form-control Titre" 
-                            name="Titre" 
-                            id="Titre"
+                            class="form-control Title" 
+                            name="Title" 
+                            id="Title"
                             placeholder="Titre" 
                             required 
                             RequireMessage = 'Veuillez entrer votre titre'
@@ -813,7 +812,7 @@ function renderAddPhotoForm() {
                    
                     <div class='imageUploader' 
                     newImage='true' 
-                    controlId='Photo' 
+                    controlId='Image' 
                     imageSrc='images/PhotoCloudLogo.png' 
                     waitingImage="images/Loading_icon.gif">
         </div>
@@ -833,6 +832,13 @@ function renderAddPhotoForm() {
         $('#abortAddPhotosCmd').on('click', renderPhotos);
         $('#AddPhotoForm').on("submit", function (event) {
             let Photo = getFormData($('#AddPhotoForm'));
+            if(Photo.Shared=="on"){
+                Photo.Shared=true;
+            }
+            else{
+                Photo.Shared=false;
+            }
+            console.log(Photo);
             event.preventDefault();
             showWaitingGif();
             CreatePhoto(Photo);
