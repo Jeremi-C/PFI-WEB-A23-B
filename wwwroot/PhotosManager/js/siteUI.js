@@ -949,7 +949,8 @@ async function renderEditPhotoForm(Pid) {
         eraseContent();
         UpdateHeader("Modification de Photos", "photoEdit");
         $("#newPhotoCmd").hide();
-        $("#content").append(`
+        if(photo.Shared){
+            $("#content").append(`
             <br/>
             <form class="form" id="EditPhotoForm"'>
             <input type="hidden" name="Date" id="Date" value="${Date.now()}"/>
@@ -979,7 +980,7 @@ async function renderEditPhotoForm(Pid) {
                     
                             >${photo.Description}</textarea>
                             <div>
-                            <input type="checkbox" id="Shared" name="Shared" value="${photo.Shared}"/>
+                            <input type="checkbox" id="Shared" name="Shared" checked/>
                             <label for="Shared">Partagée</label>
                             </div>
                 </fieldset>
@@ -1002,6 +1003,63 @@ async function renderEditPhotoForm(Pid) {
             </div>
 
         `);
+        }
+        else{
+            $("#content").append(`
+            <br/>
+            <form class="form" id="EditPhotoForm"'>
+            <input type="hidden" name="Date" id="Date" value="${Date.now()}"/>
+            <input type="hidden" name="OwnerId" id="OwnerId" value="${loggedUser.Id}"/>
+            <input type="hidden" name="Id" id="Id" value="${photo.Id}"/>
+                <fieldset>
+                    <legend>Informations</legend>
+                    <input  type="text" 
+                            class="form-control Title" 
+                            name="Title" 
+                            id="Title"
+                            placeholder="Titre" 
+                            required 
+                            RequireMessage = 'Veuillez entrer votre titre'
+                            InvalidMessage = 'titre invalide'
+                            value="${photo.Title}" 
+                            >
+
+                    <textarea  class="form-control Description" 
+                                type="textarea" 
+                                name="Description" 
+                                id="Description" 
+                            placeholder="Description" 
+                            required
+                            RequireMessage = 'Veuillez entrez une description pour votre image'
+                            InvalidMessage="quelque chose cloche avec votre message" 
+                    
+                            >${photo.Description}</textarea>
+                            <div>
+                            <input type="checkbox" id="Shared" name="Shared"/>
+                            <label for="Shared">Partagée</label>
+                            </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Image</legend>
+                   
+                    <div class='imageUploader' 
+                    newImage='true' 
+                    controlId='Image' 
+                    imageSrc='${photo.Image}' 
+                    waitingImage="images/Loading_icon.gif">
+        </div>
+                </fieldset>
+
+                <input type='submit' name='submit' id='savePhoto' value="Enregistrer" class="form-control btn-primary">
+              
+            </form>
+            <div class="cancel">
+                <button class="form-control btn-secondary" id="aborteditPhotosCmd">Annuler</button>
+            </div>
+
+        `);
+        }
+       
         initFormValidation(); // important do to after all html injection!
         initImageUploaders();
         $('#aborteditPhotosCmd').on('click', renderPhotos);
