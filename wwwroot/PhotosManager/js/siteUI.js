@@ -282,9 +282,9 @@ async function deleteProfil() {
 }
 
 async function deletePhoto(id) {
-    let photo = API.GetPhotosById(id);
+    let photo =  await API.GetPhotosById(id);
     if (photo) {
-        if (await API.DeletePhoto(loggedUser.Id)) {
+        if (await API.DeletePhoto(photo.Id)) {
             
             renderPhotos();
         } else
@@ -413,8 +413,8 @@ async function renderPhotosList() {
                 if (photo.Shared || photo.OwnerId == loggedUser.Id) {
                     let date = convertToFrenchDate(photo.Date);
                     let edit = photo.OwnerId == loggedUser.Id ? 
-                    `<div><span class="modifyPhotoCmd cmdIconVisible fas fa-trash cmdIconSmall"  id="onglet" title="modifier" photoId="${photo.Id}"></span></div>
-                    <div><span class="removePhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" id="onglet" inline-block;" title="supprimer" photoId="${photo.Id}"></span> </div>`:``;
+                    `<div><span class=" removePhotoCmd cmdIconVisible fas fa-trash cmdIconSmall"  id="onglet" title="supprimer" photoId="${photo.Id}"></span></div>
+                    <div><span class="modifyPhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" id="onglet" inline-block;" title="modifier" photoId="${photo.Id}"></span> </div>`:``;
                     let nblike = 0//photo.likes.length();
                     let like = photo == photo? `fa-regular fa-thumb-up`:`fa fa-thumb-up`;
                     let userRow = `
@@ -435,19 +435,22 @@ async function renderPhotosList() {
                
             }); 
             $("#content").append(`</div>`);
-            $(".detailPhotoCmd").on("click", async function () {
+            $(".detailPhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                await API.PromoteUser(photoId);
+                API.renderEditPhotoForm(photoId);
                 renderManageUsers();
             });
-            $(".modifyPhotoCmd").on("click", async function () {
+            $(".modifyPhotoCmd").on("click",  function () {
                 let photoId = $(this).attr("photoId");
-                await API.BlockUser(photoId);
-                renderManageUsers();
+                console.log(photoId);
+                console.log("modify");
+                renderEditPhotoForm(photoId);
             });
             $(".removePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                renderConfirmDeleteAccount(photoId);
+                console.log(photoId);
+                console.log("remove");
+                renderConfirmDeletePhoto(photoId);
             });
         }
     } 
@@ -932,11 +935,16 @@ function renderAddPhotoForm() {
 }
  
 
-function renderEditPhotoForm(Pid) {
+async function renderEditPhotoForm(Pid) {
     timeout();
-
+    let photo = await API.GetPhotosById(Pid);
+    console.log("photo");
+    console.log(photo);
     let loggedUser = API.retrieveLoggedUser();
-    let photo =API.GetPhotosById(Pid);
+    console.log("loggedUser");
+    console.log(loggedUser);
+
+
     if (photo.OwnerId==loggedUser.Id) {
         eraseContent();
         UpdateHeader("Modification de Photos", "photoEdit");
@@ -946,6 +954,7 @@ function renderEditPhotoForm(Pid) {
             <form class="form" id="EditPhotoForm"'>
             <input type="hidden" name="Date" id="Date" value="${Date.now()}"/>
             <input type="hidden" name="OwnerId" id="OwnerId" value="${loggedUser.Id}"/>
+            <input type="hidden" name="Id" id="Id" value="${photo.Id}"/>
                 <fieldset>
                     <legend>Informations</legend>
                     <input  type="text" 
@@ -967,8 +976,8 @@ function renderEditPhotoForm(Pid) {
                             required
                             RequireMessage = 'Veuillez entrez une description pour votre image'
                             InvalidMessage="quelque chose cloche avec votre message" 
-                            value="${photo.Description}" 
-                            ></textarea>
+                    
+                            >${photo.Description}</textarea>
                             <div>
                             <input type="checkbox" id="Shared" name="Shared" value="${photo.Shared}"/>
                             <label for="Shared">Partagée</label>
@@ -1011,10 +1020,10 @@ function renderEditPhotoForm(Pid) {
         });
     }
 }
-function renderConfirmDeleteProfil(Pid) {
+async function renderConfirmDeletePhoto(Pid) {
     timeout();
     let loggedUser = API.retrieveLoggedUser();
-    let photo =API.GetPhotosById(Pid);
+    let photo = await API.GetPhotosById(Pid);
     if (photo.OwnerId==loggedUser.Id) {
         eraseContent();
         UpdateHeader("Retrait de Photo", "confirmDeletePhoto");
