@@ -400,9 +400,6 @@ async function renderPhotosList() {
     let loggedUser = API.retrieveLoggedUser();
     if (loggedUser) {
         eraseContent();
-        UpdateHeader("Liste des photos", "photosList");
-        $("#newPhotoCmd").hide();
-        $("#abort").hide();
         let photos = await API.GetPhotos();
         if (API.error) {
             renderError();
@@ -412,11 +409,12 @@ async function renderPhotosList() {
             photos.data.forEach(photo => {
                 if (photo.Shared || photo.OwnerId == loggedUser.Id) {
                     let date = convertToFrenchDate(photo.Date);
+                    let share = photo.OwnerId == loggedUser.Id ? `<div class="UserAvatarSmall sharePhotoCmd" style="background-image:url('../../PhotosManager/images/shared.png')" photoId="${photo.Id}"></div>`:``;
                     let edit = photo.OwnerId == loggedUser.Id ? 
                     `<div><span class=" removePhotoCmd cmdIconVisible fas fa-trash cmdIconSmall"  id="onglet" title="supprimer" photoId="${photo.Id}"></span></div>
                     <div><span class="modifyPhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" id="onglet" inline-block;" title="modifier" photoId="${photo.Id}"></span> </div>`:``;
-                    let nblike = 0//photo.likes.length();
-                    let like = photo == photo? `fa-regular fa-thumb-up`:`fa fa-thumb-up`;
+                    let likes = photo.Likes!=null?photo.Likes.split(','):[];
+                    let like = likes.includes(loggedUser.Id)? `fa fa-thumbs-up`:`fa-regular fa-thumbs-up`;
                     let userRow = `
                     <div class="photoLayoutNoScrollSnap">
                         <div class="photoTitleContainer">
@@ -424,9 +422,14 @@ async function renderPhotosList() {
                             ${edit}
                         </div>
                         <div class="photoImage detailPhotoCmd" style="background-image:url('${photo.Image}')" photoId="${photo.Id}">
-                        <div class="photoTitleContainer">
+                        <div class="UserAvatarSmall" style="background-image:url('${photo.Owner.Avatar}')" title="${loggedUser.Name}"></div>
+                        ${share}</div>
+                        <div class="photoCreationDate">
                             <span>${date}</span>
-                            <span>${nblike}</span><span class="${like}"></span>
+                            <span class="likesSummary">
+                                <span>${likes.length}</span>
+                                <span class="${like}"></span>
+                            </span>
                         </div> 
                     </div>           
                     `;
@@ -437,23 +440,64 @@ async function renderPhotosList() {
             $("#content").append(`</div>`);
             $(".detailPhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                API.renderEditPhotoForm(photoId);
-                renderManageUsers();
+                renderDetailPhoto(photoId);
             });
             $(".modifyPhotoCmd").on("click",  function () {
                 let photoId = $(this).attr("photoId");
-                console.log(photoId);
-                console.log("modify");
-                renderEditPhotoForm(photoId);
             });
             $(".removePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                console.log(photoId);
-                console.log("remove");
-                renderConfirmDeletePhoto(photoId);
+            });
+            $(".sharePhotoCmd").on("click", function () {
+                let photoId = $(this).attr("photoId");
             });
         }
     } 
+}
+async function renderDetailPhoto(Id) {
+    timeout();
+    showWaitingGif();
+    UpdateHeader('Liste des photos', 'photosList');
+    $("#abort").hide();
+    let loggedUser = API.retrieveLoggedUser();
+    if (loggedUser) {
+        eraseContent();
+        let photo = await API.GetPhotosById(Id);
+        if (API.error) {
+            renderError();
+        } else if(!(photo.Shared || photo.OwnerId == loggedUser.Id)){
+            renderError("Vous n'avez pas les droits d'acces à cette image");
+        }
+        else{
+            $("#content").empty();
+            let date = convertToFrenchDate(photo.Date);
+            let likes = photo.Likes!=null?photo.Likes.split(','):[];
+            let like = likes.includes(loggedUser.Id)? `fa fa-thumbs-up`:`fa-regular fa-thumbs-up`;
+            let content = `
+            <div class="photoDetailsOwner">
+                <div class="UserAvatarSmall" style="background-image:url('${photo.Owner.Avatar}')" title="${loggedUser.Name}"></div>
+                <h3>${photo.Owner.Name}</h3>
+            </div>
+            <hr>
+            <div class="photoDetailsTitle">${photo.Title}</div>
+            <img class="photoDetailsLargeImage" src="${photo.Image}" alt="${photo.Title}"></img>
+            <div class="photoDetailsCreationDate">
+                <span>${date}</span>
+                <span class="likesSummary">
+                    <span>${likes.length}</span>
+                    <span class="${like}"></span>
+                </span>
+            </div>
+            <p class="photoDetailsDescription">
+                ${photo.Description}
+            </p>
+            `;
+            $("#content").append(content);
+        }
+    } 
+    else {
+        renderLoginForm();
+    }
 }
 function renderVerify() {
     eraseContent();
