@@ -409,7 +409,7 @@ async function renderPhotosList() {
             photos.data.forEach(photo => {
                 if (photo.Shared || photo.OwnerId == loggedUser.Id) {
                     let date = convertToFrenchDate(photo.Date);
-                    let share = photo.OwnerId == loggedUser.Id ? `<div class="UserAvatarSmall sharePhotoCmd" style="background-image:url('../../PhotosManager/images/shared.png')" photoId="${photo.Id}"></div>`:``;
+                    let share = (photo.OwnerId == loggedUser.Id && photo.Shared) ? `<div class="UserAvatarSmall sharePhotoCmd" style="background-image:url('../../PhotosManager/images/shared.png')" photoId="${photo.Id}"></div>`:``;
                     let edit = photo.OwnerId == loggedUser.Id ? 
                     `<div><span class=" removePhotoCmd cmdIconVisible fas fa-trash cmdIconSmall"  id="onglet" title="supprimer" photoId="${photo.Id}"></span></div>
                     <div><span class="modifyPhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" id="onglet" inline-block;" title="modifier" photoId="${photo.Id}"></span> </div>`:``;
@@ -444,12 +444,11 @@ async function renderPhotosList() {
             });
             $(".modifyPhotoCmd").on("click",  function () {
                 let photoId = $(this).attr("photoId");
+                renderEditPhotoForm(photoId);
             });
             $(".removePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-            });
-            $(".sharePhotoCmd").on("click", function () {
-                let photoId = $(this).attr("photoId");
+                renderConfirmDeletePhoto(photoId);
             });
         }
     } 
