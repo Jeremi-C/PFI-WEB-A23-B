@@ -50,5 +50,18 @@
             "readAccess": 1,
             "writeAccess": 1
         }
+    },
+    {
+        "Id": "3a494e20-9cf4-11ee-afd7-471ab0289277",
+        "Email": "hugogravel2001@gmail.com",
+        "Password": "wizzo11",
+        "Name": "hugo",
+        "Avatar": "3a494e21-9cf4-11ee-afd7-471ab0289277.png",
+        "Created": 1702828326,
+        "VerifyCode": "verified",
+        "Authorizations": {
+            "readAccess": 1,
+            "writeAccess": 1
+        }
     }
 ]

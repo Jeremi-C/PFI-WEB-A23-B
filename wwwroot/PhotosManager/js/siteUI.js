@@ -251,18 +251,39 @@ async function UpdatePhoto(photo) {
         renderError("Un problème est survenu.");
     }
 }
+async function deletePhotoListe(userId){
+    let photolist = await API.GetPhotos();
 
+    photolist.data.forEach(photo => {
+        console.log(photo);
+        if (photo.OwnerId == userId) {
+            API.DeletePhoto(photo.Id);
+        }
+    });
+}
 
-async function adminDeleteAccount(userId) {
-    if (await API.unsubscribeAccount(userId)) {
-        renderManageUsers();
-    } else {
-        renderError("Un problème est survenu.");
-    }
+async function deletePhotoListe(){
+    let photolist = await API.GetPhotos();
+  let loggedUser = API.retrieveLoggedUser();
+  if(loggedUser){
+    photolist.data.forEach(photo => {
+        console.log(photo);
+        if (photo.OwnerId == loggedUser.Id) {
+            if ( API.DeletePhoto(photo.Id)) {
+            
+                console.log("good");
+            } 
+        } 
+    });
+  }
+    
+ 
 }
 
 async function adminDeleteAccount(userId) {
     if (await API.unsubscribeAccount(userId)) {
+        console.log("fuck");
+        deletePhotoListe(userId);
         renderManageUsers();
     } else {
         renderError("Un problème est survenu.");
@@ -273,7 +294,9 @@ async function adminDeleteAccount(userId) {
 async function deleteProfil() {
     let loggedUser = API.retrieveLoggedUser();
     if (loggedUser) {
+        deletePhotoListe();
         if (await API.unsubscribeAccount(loggedUser.Id)) {
+          console.log("snail");
             loginMessage = "Votre compte a été effacé.";
             logout();
         } else
@@ -484,8 +507,9 @@ async function renderPhotosList() {
 async function renderDetailPhoto(Id) {
     timeout();
     showWaitingGif();
-    UpdateHeader('Liste des photos', 'photosList');
+    UpdateHeader('Détails', 'photosList');
     $("#abort").hide();
+    $("#newPhotoCmd").hide();
     let loggedUser = API.retrieveLoggedUser();
     if (loggedUser) {
         eraseContent();
