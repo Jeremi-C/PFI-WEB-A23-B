@@ -297,7 +297,7 @@ class API {
                 success: () => {
                     resolve(true);
                 },
-                error: xhr => { API.setHttpErrorState(xhr); console.log(xhr); resolve(false); }
+                error: xhr => { API.setHttpErrorState(xhr); resolve(false); }
             });
         });
     }
