@@ -472,11 +472,11 @@ async function renderPhotosList() {
             });
             $(".likePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                likePhoto(photoId, loggedUser.Id, renderPhotosList);
+                likePhoto(photoId, loggedUser.Id, renderPhotos);
             });
             $(".unlikePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                unlikePhoto(photoId, loggedUser.Id, renderPhotosList);
+                unlikePhoto(photoId, loggedUser.Id, renderPhotos);
             });
         }
     } 
