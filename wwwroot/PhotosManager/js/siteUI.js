@@ -252,7 +252,7 @@ async function UpdatePhoto(photo) {
     }
 }
 async function deletePhotoListe(userId){
-    let photolist = awaitAPI.GetPhotos();
+    let photolist = await API.GetPhotos();
 
     photolist.data.forEach(photo => {
         console.log(photo);
@@ -260,24 +260,30 @@ async function deletePhotoListe(userId){
             API.DeletePhoto(photo.Id);
         }
     });
+}
 
-
-
+async function deletePhotoListe(){
+    let photolist = await API.GetPhotos();
+  let loggedUser = API.retrieveLoggedUser();
+  if(loggedUser){
+    photolist.data.forEach(photo => {
+        console.log(photo);
+        if (photo.OwnerId == loggedUser.Id) {
+            if ( API.DeletePhoto(photo.Id)) {
+            
+                console.log("good");
+            } 
+        } 
+    });
+  }
+    
+ 
 }
 
 async function adminDeleteAccount(userId) {
     if (await API.unsubscribeAccount(userId)) {
-
+        console.log("fuck");
         deletePhotoListe(userId);
-
-        renderManageUsers();
-    } else {
-        renderError("Un problème est survenu.");
-    }
-}
-
-async function adminDeleteAccount(userId) {
-    if (await API.unsubscribeAccount(userId)) {
         renderManageUsers();
     } else {
         renderError("Un problème est survenu.");
@@ -288,7 +294,9 @@ async function adminDeleteAccount(userId) {
 async function deleteProfil() {
     let loggedUser = API.retrieveLoggedUser();
     if (loggedUser) {
+        deletePhotoListe();
         if (await API.unsubscribeAccount(loggedUser.Id)) {
+          console.log("snail");
             loginMessage = "Votre compte a été effacé.";
             logout();
         } else
