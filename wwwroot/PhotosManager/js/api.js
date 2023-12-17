@@ -289,7 +289,7 @@ class API {
         API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url: serverHost + "photoLikes/like",
+                url: serverHost + "/photoLikes/like",
                 type: 'PUT',
                 contentType: 'application/json',
                 headers: API.getBearerAuthorizationToken(),
@@ -305,7 +305,7 @@ class API {
         API.initHttpState();
         return new Promise(resolve => {
             $.ajax({
-                url: serverHost + "photoLikes/unlike",
+                url: serverHost + "/photoLikes/unlike",
                 type: 'PUT',
                 contentType: 'application/json',
                 headers: API.getBearerAuthorizationToken(),

@@ -522,11 +522,11 @@ async function renderDetailPhoto(Id) {
             $("#content").append(content);
             $(".likePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                likePhoto(photoId, loggedUser.Id, renderPhotosList);
+                likePhoto(photoId, loggedUser.Id, renderDetailPhoto);
             });
             $(".unlikePhotoCmd").on("click", function () {
                 let photoId = $(this).attr("photoId");
-                unlikePhoto(photoId, loggedUser.Id, renderPhotosList);
+                unlikePhoto(photoId, loggedUser.Id, renderDetailPhoto);
             });
         }
     } 
