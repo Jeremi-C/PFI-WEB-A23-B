@@ -50,7 +50,7 @@ export default class PhotoLikesController extends Controller {
     unlike(data) {
         if (this.repository != null) {
             let foundedlikes = this.repository.findByField("PhotoId", data.photoId);
-            if (foundedlikes != null && foundedlikes.userId.includes(data.userId)) {
+            if (foundedlikes != null && foundedlikes.UsersId.includes(data.userId)) {
                 let newPhotoLike = {PhotoId:data.photoId, UsersId:data.userId}
                 let positionUserId = foundedlikes.UsersId.indexOf(data.userId)
                 if(foundedlikes.UsersId.includes(",")){
@@ -75,16 +75,6 @@ export default class PhotoLikesController extends Controller {
                 else{
                     this.repository.remove(foundedlikes.Id);
                     this.HttpContext.response.accepted();
-                }
-                let updatedPhotoLike= this.repository.update(foundedlikes.Id, newPhotoLike);
-                if (this.repository.model.state.isValid) {
-                    this.HttpContext.response.updated(updatedPhotoLike);
-                }
-                else {
-                    if (this.repository.model.state.inConflict)
-                        this.HttpContext.response.conflict(this.repository.model.state.errors);
-                    else
-                        this.HttpContext.response.badRequest(this.repository.model.state.errors);
                 }
             } else {
                 this.HttpContext.response.accepted();
