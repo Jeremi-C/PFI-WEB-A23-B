@@ -18,8 +18,5 @@ RouteRegister.add('GET', 'accounts', 'conflict');
 RouteRegister.add('POST', 'accounts', 'block');
 RouteRegister.add('POST', 'accounts', 'promote');
 
-RouteRegister.add('PUT', 'photolikes', 'like');
-RouteRegister.add('PUT', 'photolikes', 'unlike');
-
 let server = new APIServer();
 server.start();

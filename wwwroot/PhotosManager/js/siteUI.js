@@ -166,14 +166,6 @@ function UpdateHeader(viewTitle, viewName) {
     }
     attachCmd();
 }
-function PeopleThatLiked(users, likes){
-    let likingUsers = users.filter((user) => likes.includes(user.Id));
-    let text = "";
-    for(i = 0; i < likingUsers.length && i < 10; i++){
-        text += likingUsers[i].Name + "\n";
-    }
-    return text.substring(0,text.length-2);
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Actions and command
 async function login(credential) {
@@ -316,30 +308,10 @@ async function deletePhoto(id) {
     let photo =  await API.GetPhotosById(id);
     if (photo) {
         if (await API.DeletePhoto(photo.Id)) {
+            
             renderPhotos();
         } else
-            renderError("Un problème est survenu.");
-    }
-}
-
-async function likePhoto(photoId, userId, renderpage){
-    let loggedUser = API.retrieveLoggedUser();
-    if (loggedUser) {
-        console.log("making like api call")
-        if (await API.like(photoId, userId)) {
-            renderpage(photoId);
-        } else
-            renderError("Un problème est survenu.");
-    }
-}
-
-async function unlikePhoto(photoId, userId, renderpage){
-    let loggedUser = API.retrieveLoggedUser();
-    if (loggedUser) {
-        if (await API.unlike(photoId, userId)) {
-            renderpage(photoId);
-        } else
-            renderError("Un problème est survenu.");
+           console.log("what is this");
     }
 }
 
@@ -452,7 +424,6 @@ async function renderPhotosList() {
     if (loggedUser) {
         eraseContent();
         let photos = await API.GetPhotos();
-        let users = await API.GetAccounts();
         if (API.error) {
             renderError();
         } else {
@@ -465,8 +436,8 @@ async function renderPhotosList() {
                     let edit = photo.OwnerId == loggedUser.Id ? 
                     `<div><span class=" removePhotoCmd cmdIconVisible fas fa-trash cmdIconSmall"  id="onglet" title="supprimer" photoId="${photo.Id}"></span></div>
                     <div><span class="modifyPhotoCmd cmdIconVisible fas fa-pencil-alt cmdIconSmall" id="onglet" inline-block;" title="modifier" photoId="${photo.Id}"></span> </div>`:``;
-                    let likes = photo.Likes!=null?photo.Likes.UsersId.split(','):[];
-                    let like = likes.includes(loggedUser.Id)? `fa fa-thumbs-up unlikePhotoCmd`:`fa-regular fa-thumbs-up likePhotoCmd`;
+                    let likes = photo.Likes!=null?photo.Likes.split(','):[];
+                    let like = likes.includes(loggedUser.Id)? `fa fa-thumbs-up`:`fa-regular fa-thumbs-up`;
                     let userRow = `
                     <div class="photoLayoutNoScrollSnap">
                         <div class="photoTitleContainer">
@@ -480,7 +451,7 @@ async function renderPhotosList() {
                             <span>${date}</span>
                             <span class="likesSummary">
                                 <span>${likes.length}</span>
-                                <span class="${like}" photoId="${photo.Id}" title="${PeopleThatLiked(users.data, likes)}"></span>
+                                <span class="${like}"></span>
                             </span>
                         </div> 
                     </div>           
@@ -502,14 +473,6 @@ async function renderPhotosList() {
                 let photoId = $(this).attr("photoId");
                 renderConfirmDeletePhoto(photoId);
             });
-            $(".likePhotoCmd").on("click", function () {
-                let photoId = $(this).attr("photoId");
-                likePhoto(photoId, loggedUser.Id, renderPhotos);
-            });
-            $(".unlikePhotoCmd").on("click", function () {
-                let photoId = $(this).attr("photoId");
-                unlikePhoto(photoId, loggedUser.Id, renderPhotos);
-            });
         }
     } 
 }
@@ -523,7 +486,6 @@ async function renderDetailPhoto(Id) {
     if (loggedUser) {
         eraseContent();
         let photo = await API.GetPhotosById(Id);
-        let users = await API.GetAccounts();
         if (API.error) {
             renderError();
         } else if(!(photo.Shared || photo.OwnerId == loggedUser.Id)){
@@ -532,8 +494,8 @@ async function renderDetailPhoto(Id) {
         else{
             $("#content").empty();
             let date = convertToFrenchDate(photo.Date);
-            let likes = photo.Likes!=null?photo.Likes.UsersId.split(','):[];
-            let like = likes.includes(loggedUser.Id)? `fa fa-thumbs-up unlikePhotoCmd`:`fa-regular fa-thumbs-up likePhotoCmd`;
+            let likes = photo.Likes!=null?photo.Likes.split(','):[];
+            let like = likes.includes(loggedUser.Id)? `fa fa-thumbs-up`:`fa-regular fa-thumbs-up`;
             let content = `
             <div class="photoDetailsOwner">
                 <div class="UserAvatarSmall" style="background-image:url('${photo.Owner.Avatar}')" title="${loggedUser.Name}"></div>
@@ -546,7 +508,7 @@ async function renderDetailPhoto(Id) {
                 <span>${date}</span>
                 <span class="likesSummary">
                     <span>${likes.length}</span>
-                    <span class="${like}" photoId="${photo.Id}" title="${PeopleThatLiked(users.data, likes)}"></span>
+                    <span class="${like}"></span>
                 </span>
             </div>
             <p class="photoDetailsDescription">
@@ -554,14 +516,6 @@ async function renderDetailPhoto(Id) {
             </p>
             `;
             $("#content").append(content);
-            $(".likePhotoCmd").on("click", function () {
-                let photoId = $(this).attr("photoId");
-                likePhoto(photoId, loggedUser.Id, renderDetailPhoto);
-            });
-            $(".unlikePhotoCmd").on("click", function () {
-                let photoId = $(this).attr("photoId");
-                unlikePhoto(photoId, loggedUser.Id, renderDetailPhoto);
-            });
         }
     } 
     else {

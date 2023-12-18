@@ -23,7 +23,7 @@ export default class Photo extends Model {
         instance.Owner = usersRepository.get(instance.OwnerId);
         instance.OwnerName = instance.Owner.Name;
         let photosLikesRepository = new Repository(new PhotoLikeModel());
-        instance.Likes = photosLikesRepository.findByField("PhotoId", instance.Id);
+        instance.Likes = photosLikesRepository.get(instance.Id);
         return instance;
     }
 }
