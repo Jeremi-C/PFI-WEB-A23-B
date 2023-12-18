@@ -6,7 +6,7 @@ import RepoCacheManager from '../models/repositoryCachesManager.js'
 
 export default class PhotoLikesController extends Controller {
     constructor(HttpContext) {
-        super(HttpContext, new Repository(new PhotoLikeModel()), Authorizations.admin());
+        super(HttpContext, new Repository(new PhotoLikeModel()), Authorizations.user());
     }
 
     like(data) {
@@ -22,8 +22,6 @@ export default class PhotoLikesController extends Controller {
                     }
                     let updatedPhotoLike= this.repository.update(foundedlikes.Id, foundedlikes);
                     if (this.repository.model.state.isValid) {
-                        RepoCacheManager.clear('Photos');
-                        RepoCacheManager.clear('PhotoLikes');
                         this.HttpContext.response.updated(updatedPhotoLike);
                     }
                     else {
@@ -36,8 +34,6 @@ export default class PhotoLikesController extends Controller {
             } else {
                 let photoLike = this.repository.add({"PhotoId":data.photoId, "UsersId":data.userId});
                 if (this.repository.model.state.isValid) {
-                    RepoCacheManager.clear('Photos');
-                    RepoCacheManager.clear('PhotoLikes');
                     this.HttpContext.response.created(photoLike);
                 }else {
                     if (this.repository.model.state.inConflict)
@@ -65,8 +61,6 @@ export default class PhotoLikesController extends Controller {
                         updatedPhotoLike = this.repository.update(foundedlikes.Id, foundedlikes);
                     }
                     if (this.repository.model.state.isValid) {
-                        RepoCacheManager.clear('Photos');
-                        RepoCacheManager.clear('PhotoLikes');
                         this.HttpContext.response.updated(updatedPhotoLike);
                     }
                     else {

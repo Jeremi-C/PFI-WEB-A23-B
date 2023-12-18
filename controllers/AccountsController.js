@@ -20,7 +20,7 @@ export default class AccountsController extends Controller {
                 this.HttpContext.response.unAuthorized("Unauthorized access");
         }
         else {
-            if (Authorizations.granted(this.HttpContext, Authorizations.admin()))
+            if (Authorizations.granted(this.HttpContext, Authorizations.user()))
                 this.HttpContext.response.JSON(this.repository.getAll(this.HttpContext.path.params), this.repository.ETag, true, Authorizations.admin());
             else
                 this.HttpContext.response.unAuthorized("Unauthorized access");
