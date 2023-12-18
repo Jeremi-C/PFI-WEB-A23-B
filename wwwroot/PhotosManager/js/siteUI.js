@@ -172,7 +172,7 @@ function PeopleThatLiked(users, likes){
     for(i = 0; i < likingUsers.length && i < 10; i++){
         text += likingUsers[i].Name + "\n";
     }
-    return text.substring(0,text.length-2);
+    return text.substring(0,text.length-1);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Actions and command
