@@ -166,6 +166,14 @@ function UpdateHeader(viewTitle, viewName) {
     }
     attachCmd();
 }
+function PeopleThatLiked(users, likes){
+    let likingUsers = users.filter((user) => likes.includes(user.Id));
+    let text = "";
+    for(i = 0; i < likingUsers.length && i < 10; i++){
+        text += likingUsers[i].Name + "\n";
+    }
+    return text.substring(0,text.length-2);
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Actions and command
 async function login(credential) {
@@ -421,6 +429,7 @@ async function renderPhotosList() {
     if (loggedUser) {
         eraseContent();
         let photos = await API.GetPhotos();
+        let users = await API.GetAccounts();
         if (API.error) {
             renderError();
         } else {
@@ -448,7 +457,7 @@ async function renderPhotosList() {
                             <span>${date}</span>
                             <span class="likesSummary">
                                 <span>${likes.length}</span>
-                                <span class="${like}" photoId="${photo.Id}"></span>
+                                <span class="${like}" photoId="${photo.Id}" title="${PeopleThatLiked(users.data, likes)}"></span>
                             </span>
                         </div> 
                     </div>           
@@ -490,6 +499,7 @@ async function renderDetailPhoto(Id) {
     if (loggedUser) {
         eraseContent();
         let photo = await API.GetPhotosById(Id);
+        let users = await API.GetAccounts();
         if (API.error) {
             renderError();
         } else if(!(photo.Shared || photo.OwnerId == loggedUser.Id)){
@@ -512,7 +522,7 @@ async function renderDetailPhoto(Id) {
                 <span>${date}</span>
                 <span class="likesSummary">
                     <span>${likes.length}</span>
-                    <span class="${like}" photoId="${photo.Id}"></span>
+                    <span class="${like}" photoId="${photo.Id}" title="${PeopleThatLiked(users.data, likes)}"></span>
                 </span>
             </div>
             <p class="photoDetailsDescription">
