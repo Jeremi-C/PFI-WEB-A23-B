@@ -1,5 +1,6 @@
 import Model from './model.js';
 import Repository from '../models/repository.js';
+import UserModel from './user.js';
 
 export default class PhotoLike extends Model {
     constructor()
@@ -9,13 +10,5 @@ export default class PhotoLike extends Model {
         this.addField('PhotoId', 'string');     
 
         this.setKey("PhotoId");
-    }
-
-    bindExtraData(instance) {
-        instance = super.bindExtraData(instance);
-        let usersRepository = new Repository(new UserModel());
-        instance.Owner = usersRepository.get(instance.OwnerId);
-        instance.OwnerName = instance.Owner.Name;
-        return instance;
     }
 }
