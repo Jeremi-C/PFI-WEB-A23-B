@@ -740,9 +740,10 @@ async function renderConfirmDeleteAccount(userId) {
         }
     }
 }
-function renderEditProfilForm() {
+async function renderEditProfilForm() {
     timeout();
-    let loggedUser = API.retrieveLoggedUser();
+    let loggedUser = await API.retrieveLoggedUser();
+    console.log(loggedUser.VerifyCode);
     if (loggedUser) {
         eraseContent();
         UpdateHeader("Profil", "editProfil");
@@ -751,6 +752,7 @@ function renderEditProfilForm() {
             <br/>
             <form class="form" id="editProfilForm"'>
                 <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
+                <input type="hidden" name="VerifyCode" id="VerifyCode" value="${loggedUser.VerifyCode}"/>
                 <fieldset>
                     <legend>Adresse ce courriel</legend>
                     <input  type="email" 
