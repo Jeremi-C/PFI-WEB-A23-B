@@ -13,15 +13,14 @@ export default class PhotoLikesController extends Controller {
         if (this.repository != null) {
             let foundedlikes = this.repository.findByField("PhotoId", data.photoId);
             if (foundedlikes != null) {
-                if(foundedlikes.userId.includes(data.userId)){
+                if(foundedlikes.UsersId.includes(data.userId)){
                     this.HttpContext.response.accepted();
                 }
                 else{
-                    let newPhotoLike = {PhotoId:data.photoId, UsersId:data.userId}
                     if(foundedlikes.UsersId.length != 0){
-                        newPhotoLike.UsersId = foundedlikes.UsersId + "," + newPhotoLike.UsersId;
+                        foundedlikes.UsersId += "," + data.userId;
                     }
-                    let updatedPhotoLike= this.repository.update(foundedlikes.Id, newPhotoLike);
+                    let updatedPhotoLike= this.repository.update(foundedlikes.Id, foundedlikes);
                     if (this.repository.model.state.isValid) {
                         this.HttpContext.response.updated(updatedPhotoLike);
                     }
@@ -51,16 +50,15 @@ export default class PhotoLikesController extends Controller {
         if (this.repository != null) {
             let foundedlikes = this.repository.findByField("PhotoId", data.photoId);
             if (foundedlikes != null && foundedlikes.UsersId.includes(data.userId)) {
-                let newPhotoLike = {PhotoId:data.photoId, UsersId:data.userId}
                 let positionUserId = foundedlikes.UsersId.indexOf(data.userId)
                 if(foundedlikes.UsersId.includes(",")){
                     let updatedPhotoLike
                     if(positionUserId == 0){
-                        newPhotoLike.UsersId = newPhotoLike.UsersId.replace(data.userId + ",", "");
-                        updatedPhotoLike = this.repository.update(foundedlikes.Id, newPhotoLike);
+                        foundedlikes.UsersId = foundedlikes.UsersId.replace(data.userId + ",", "");
+                        updatedPhotoLike = this.repository.update(foundedlikes.Id, foundedlikes);
                     }else{
-                        newPhotoLike.UsersId = newPhotoLike.UsersId.replace("," + data.userId, "");
-                        updatedPhotoLike = this.repository.update(foundedlikes.Id, newPhotoLike);
+                        foundedlikes.UsersId = foundedlikes.UsersId.replace("," + data.userId, "");
+                        updatedPhotoLike = this.repository.update(foundedlikes.Id, foundedlikes);
                     }
                     if (this.repository.model.state.isValid) {
                         this.HttpContext.response.updated(updatedPhotoLike);
